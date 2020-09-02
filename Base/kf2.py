@@ -29,7 +29,7 @@ class KF2(App):
     )
 
     EXE_SUBPATH: AnyStr = r"Binaries\Win64\KFServer.exe"
-    ARGS:        Tuple  = 'kf-burningparis',
+    ARGS:        Tuple  = ('kf-burningparis',)
     ID:          int    = 232130
 
     CUSTOM_DIRS: Tuple  = NotImplemented
