@@ -6,7 +6,7 @@ App class for controlling Killing Floor 2 dedicated server.
 from typing import *
 import re
 import os
-from app import *
+from Base.app import *
 
 
 __all__ = 'KF2',

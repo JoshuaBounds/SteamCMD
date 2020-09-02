@@ -5,7 +5,7 @@ App class for controlling SteamCMD.
 
 from typing import *
 from subprocess import Popen
-from app import *
+from Base.app import *
 
 
 __all__ = 'Steam',
