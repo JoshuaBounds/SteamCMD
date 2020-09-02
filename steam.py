@@ -50,18 +50,3 @@ class Steam(App):
         )
         steam_process = Popen(args)
         steam_process.wait()
-
-
-if __name__ == '__main__':
-
-    from kf2 import *
-
-    Steam.INSTALL_DIR = r"D:\steamCMD"
-
-    KF2.INSTALL_DIR = r"D:\steamCMD\steamapps\common\kf2server"
-    KF2.CUSTOM_DIRS = r"KFGame\BrewedPC\Maps\Custom",
-
-    KF2.remove_workshop_items()
-    KF2.rebuild_map_summaries()
-
-    # Steam.launch_game(KF2)
