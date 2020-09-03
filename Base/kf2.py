@@ -140,13 +140,18 @@ class KF2(App):
             f.write(content)
 
     @classmethod
-    def set_workshop_items(cls, items: List[int], append: bool = False) -> NoReturn:
+    def set_workshop_items(
+            cls,
+            items: List[int],
+            append: bool = False
+    ) -> NoReturn:
         """
         Sets the workshop content ID's for the server to subscribe to.
         :param items:
             List of workshop ID's, given as integers.
         :param append:
-            Appends given workshop items to any current.
+            Appends given workshop items to any existing ones instead
+            of overwriting them.
         """
 
         # Reads the .ini file content.
