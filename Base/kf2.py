@@ -169,6 +169,7 @@ class KF2(App):
         existing_items = [
             int(line.split('=')[1])
             for line in section_table.setdefault(cls._workshop_section_key, [])
+            if '=' in line
         ]
 
         # Gets a set of both the given items, and any existing items.
