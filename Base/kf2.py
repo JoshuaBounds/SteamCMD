@@ -140,11 +140,13 @@ class KF2(App):
             f.write(content)
 
     @classmethod
-    def add_workshop_items(cls, items: List[int]) -> NoReturn:
+    def set_workshop_items(cls, items: List[int], append: bool = False) -> NoReturn:
         """
-        Adds all given workshop content ID's to servers subscription.
+        Sets the workshop content ID's for the server to subscribe to.
         :param items:
             List of workshop ID's, given as integers.
+        :param append:
+            Appends given workshop items to any current.
         """
 
         # Reads the .ini file content.
@@ -164,11 +166,15 @@ class KF2(App):
             for line in section_table.setdefault(cls._workshop_section_key, [])
         ]
 
+        # Gets a set of both the given items, and any existing items.
+        # If append is False, the existing items are not included.
+        all_items = set(items + existing_items) if append else set(items)
+
         # Updates the current item list
         # A set is used so that items cannot be added more than once.
         section_table[cls._workshop_section_key][:] = [
             'ServerSubscribedWorkshopItems=%s' % item
-            for item in set(items + existing_items)
+            for item in all_items
         ]
 
         # Converts the table back to .ini file content.
