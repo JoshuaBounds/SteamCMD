@@ -1,4 +1,9 @@
 """
+TODO:
+    Method for rebuilding a custom map cycle.
+    Method for automatically setting up webadmin.
+    Method for automatically setting up workshop.
+
 App class for controlling Killing Floor 2 dedicated server.
 """
 
@@ -24,6 +29,7 @@ class KF2(App):
     _engine_ini_subpath:   AnyStr = r"KFGame\Config\PCServer-KFEngine.ini"
     _game_ini_subpath:     AnyStr = r"KFGame\Config\PCServer-KFGame.ini"
     _cache_subpath:        AnyStr = r"KFGame\Cache"
+    _gameinfo_section_key: AnyStr = r'[KFGame.KFGameInfo]'
     _workshop_section_key: AnyStr = (
         '[OnlineSubsystemSteamworks.KFWorkshopSteamworks]'
     )
@@ -97,7 +103,7 @@ class KF2(App):
         # Custom map summaries differ from vanilla ones where:
         #   Vanilla map summaries use 8 lines.
         #   Custom map summaries use 1.
-        re_map_summary = re.compile(r'\[.+ KFMapSummary\]')
+        re_map_summary = re.compile(r'\[.+ KFMapSummary]')
         for header_line, lines in tuple(section_table.items()):
 
             if not re_map_summary.match(header_line):
@@ -243,3 +249,34 @@ class KF2(App):
         # Writes .ini content back to file.
         with open(cls.get_engine_ini_path(), 'w') as f:
             f.write(content)
+
+    @classmethod
+    def rebuild_custom_mapcycle(cls, index: int = 1) -> NoReturn:
+
+        # Reads the .ini file content.
+        with open(cls.get_game_ini_path()) as f:
+            content = f.read()
+
+        # Created a table of .ini sections where the .ini headers act
+        # as dictionary keys.
+        section_table = {}
+        for section in re.split(r'\n\n+', content):
+            header_line, *lines = section.split('\n')
+            section_table[header_line] = lines
+
+        map_cycles = []
+        for i, line in enumerate(section_table[cls._gameinfo_section_key]):
+            if line.startswith('GameMapCycles'):
+                map_cycles.append((i, line))
+
+        return map_cycles
+
+
+if __name__ == '__main__':
+
+    KF2.INSTALL_DIR = r"D:\steamCMD\steamapps\common\kf2server"
+    KF2.CUSTOM_DIRS = r"KFGame\BrewedPC\Maps\Custom",
+
+    from pprint import pprint
+
+    pprint(KF2.rebuild_custom_mapcycle())
