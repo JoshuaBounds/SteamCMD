@@ -5,7 +5,7 @@ App class for controlling SteamCMD.
 
 from typing import *
 from subprocess import Popen
-from Base.app import *
+from Apps.app import *
 
 
 __all__ = 'Steam',
@@ -17,7 +17,7 @@ class Steam(App):
     """
 
     EXE_SUBPATH: AnyStr = r"steamcmd.exe"
-    ARGS:        Tuple  = ('+login anonymous',)
+    ARGS:        Tuple  = '+login anonymous',
 
     @classmethod
     def launch_game(cls, app: Type[App]) -> NoReturn:
@@ -37,7 +37,7 @@ class Steam(App):
         steam_process.wait()
 
     @classmethod
-    def update_game(cls, app: Type[App]) -> NoReturn:
+    def update_game(cls, app: Union[Type[App], App]) -> NoReturn:
         """
         Updates the app at the given steam app ID.
         :param app:

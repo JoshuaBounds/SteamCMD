@@ -1,5 +1,5 @@
 """
-Base class for all apps.
+Apps class for all apps.
 """
 
 
@@ -13,7 +13,7 @@ __all__ = 'App',
 
 class App:
     """
-    Base class for all apps.
+    Apps class for all apps.
 
     :attr INSTALL_DIR:
         Applications install directory.

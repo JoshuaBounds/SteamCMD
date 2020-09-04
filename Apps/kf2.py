@@ -6,7 +6,7 @@ App class for controlling Killing Floor 2 dedicated server.
 from typing import *
 import re
 import os
-from Base.app import *
+from Apps.app import *
 
 
 __all__ = 'KF2',
@@ -29,7 +29,7 @@ class KF2(App):
     )
 
     EXE_SUBPATH: AnyStr = r"Binaries\Win64\KFServer.exe"
-    ARGS:        Tuple  = ('kf-burningparis',)
+    ARGS:        Tuple  = 'kf-burningparis',
     ID:          int    = 232130
 
     CUSTOM_DIRS: Tuple  = NotImplemented
