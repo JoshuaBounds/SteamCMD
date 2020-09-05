@@ -1,6 +1,5 @@
 """
 TODO:
-    Method for rebuilding a custom map cycle.
     Method for automatically setting up webadmin.
     Method for automatically setting up workshop.
 
@@ -89,15 +88,7 @@ class KF2(App):
         """
 
         # Reads the .ini file content.
-        with open(cls.get_game_ini_path()) as f:
-            content = f.read()
-
-        # Created a table of .ini sections where the .ini headers act
-        # as dictionary keys.
-        section_table = {}
-        for section in re.split(r'\n\n+', content):
-            header_line, *lines = section.split('\n')
-            section_table[header_line] = lines
+        section_table = cls.read_ini_file_to_table(cls.get_game_ini_path())
 
         # Removes any custom map summaries
         # Custom map summaries differ from vanilla ones where:
@@ -113,37 +104,15 @@ class KF2(App):
 
             del section_table[header_line]
 
-        # Walks the cache dir, and all custom dirs for KF-*.kfm files.
-        # All valid files found have a map summary created for them and
-        # inserted into the table.
-        for path in [cls.get_cache_path()] + cls.get_custom_dir_paths():
-            for dir_path, _, file_names in os.walk(path):
-                for file_name in file_names:
+        # Creates a map summaries for all custom maps found in
+        # registered directories.
+        for name in cls.get_custom_map_names():
+            header_line = '[%s KFMapSummary]'
+            line        = 'MapName=%s'
+            section_table[header_line % name] = [line % name]
 
-                    file_path = os.path.join(dir_path, file_name)
-                    name, extension = os.path.splitext(file_name)
-
-                    if not os.path.isfile(file_path):
-                        continue
-                    if not file_name.casefold().startswith('kf-'):
-                        continue
-                    if extension.casefold() != '.kfm':
-                        continue
-
-                    header_line = '[%s KFMapSummary]'
-                    line        = 'MapName=%s'
-                    section_table[header_line % name] = [line % name]
-
-        # Converts the table back to .ini file content.
-        content = '\n'.join(
-            line
-            for k, v in section_table.items()
-            for line in [k] + v + ['']
-        )
-
-        # Writes .ini content back to file.
-        with open(cls.get_game_ini_path(), 'w') as f:
-            f.write(content)
+        # Writes the modified table back to file.
+        cls.write_table_to_ini_file(cls.get_game_ini_path(), section_table)
 
     @classmethod
     def set_workshop_items(
@@ -161,15 +130,7 @@ class KF2(App):
         """
 
         # Reads the .ini file content.
-        with open(cls.get_engine_ini_path()) as f:
-            content = f.read()
-
-        # Created a table of .ini sections where the .ini headers act
-        # as dictionary keys.
-        section_table = {}
-        for section in re.split(r'\n\n+', content):
-            header_line, *lines = section.split('\n')
-            section_table[header_line] = lines
+        section_table = cls.read_ini_file_to_table(cls.get_engine_ini_path())
 
         # Get's all currently subscribed workshop items.
         existing_items = [
@@ -189,16 +150,8 @@ class KF2(App):
             for item in all_items
         ]
 
-        # Converts the table back to .ini file content.
-        content = '\n'.join(
-            line
-            for k, v in section_table.items()
-            for line in [k] + v + ['']
-        )
-
-        # Writes .ini content back to file.
-        with open(cls.get_engine_ini_path(), 'w') as f:
-            f.write(content)
+        # Writes the modified table back to file.
+        cls.write_table_to_ini_file(cls.get_engine_ini_path(), section_table)
 
     @classmethod
     def remove_workshop_items(cls, items: Iterable[int] = None) -> NoReturn:
@@ -210,15 +163,7 @@ class KF2(App):
         """
 
         # Reads the .ini file content.
-        with open(cls.get_engine_ini_path()) as f:
-            content = f.read()
-
-        # Created a table of .ini sections where the .ini headers act
-        # as dictionary keys.
-        section_table = {}
-        for section in re.split(r'\n\n+', content):
-            header_line, *lines = section.split('\n')
-            section_table[header_line] = lines
+        section_table = cls.read_ini_file_to_table(cls.get_engine_ini_path())
 
         # Get's all currently subscribed workshop items.
         existing_items = [
@@ -239,19 +184,49 @@ class KF2(App):
                 if item not in items
             ]
 
-        # Converts the table back to .ini file content.
-        content = '\n'.join(
-            line
-            for k, v in section_table.items()
-            for line in [k] + v + ['']
-        )
-
-        # Writes .ini content back to file.
-        with open(cls.get_engine_ini_path(), 'w') as f:
-            f.write(content)
+        # Writes the modified table back to file.
+        cls.write_table_to_ini_file(cls.get_engine_ini_path(), section_table)
 
     @classmethod
-    def rebuild_custom_mapcycle(cls, index: int = 1) -> NoReturn:
+    def get_custom_map_names(cls) -> List:
+        """
+        Gets the names of all custom maps in the registered directories.
+        :return:
+            List of custom maps names.
+        """
+
+        # Walks the cache dir, and all custom dirs for KF-*.kfm files.
+        # All valid files found are appended to names.
+        names = []
+        for path in [cls.get_cache_path()] + cls.get_custom_dir_paths():
+            for dir_path, _, file_names in os.walk(path):
+                for file_name in file_names:
+
+                    file_path = os.path.join(dir_path, file_name)
+                    name, extension = os.path.splitext(file_name)
+
+                    if not os.path.isfile(file_path):
+                        continue
+                    if not file_name.casefold().startswith('kf-'):
+                        continue
+                    if extension.casefold() != '.kfm':
+                        continue
+
+                    names.append(file_name)
+
+        return names
+
+    @classmethod
+    def read_ini_file_to_table(cls, path: AnyStr) -> Dict:
+        """
+        Reads the given .ini file to a table of sections where each
+        section header acts as the key, and the section data is a list
+        of lines of text.
+        :param path:
+            Path to the .ini file to read.
+        :return:
+            Table of .ini file data.
+        """
 
         # Reads the .ini file content.
         with open(cls.get_game_ini_path()) as f:
@@ -264,19 +239,71 @@ class KF2(App):
             header_line, *lines = section.split('\n')
             section_table[header_line] = lines
 
-        map_cycles = []
-        for i, line in enumerate(section_table[cls._gameinfo_section_key]):
+        return section_table
+
+    @classmethod
+    def write_table_to_ini_file(cls, file_path: AnyStr, table: Dict) -> NoReturn:
+        """
+        Writes a given .ini file table back to .ini file.
+        :param file_path:
+            Path to the .ini file to write data to.
+        :param table:
+            Dict of .ini file data.
+        """
+
+        # Converts the table back to .ini file content.
+        content = '\n'.join(
+            line
+            for k, v in table.items()
+            for line in [k] + v + ['']
+        )
+
+        # Writes .ini content back to file.
+        with open(file_path, 'w') as f:
+            f.write(content)
+
+
+    @classmethod
+    def rebuild_custom_mapcycle(cls, index: int = 1) -> NoReturn:
+        """
+        Rebuilds custom mapcycle using custom maps from registered dirs.
+        Mapcycle can eiter overwrite an existing mapcycle, or be
+        appended as a new mapcycle based on the index given.
+        :param index:
+            Mapcycle index to write custom map cycle to. If the given
+            index does not exist in file, a new custom mapcycle will be
+            created following the latest mapcycle on file.
+        """
+
+        # Reads the .ini file content.
+        section_table = cls.read_ini_file_to_table(cls.get_game_ini_path())
+
+        # Gets the gameinfo section.
+        gameinfo_section = section_table[cls._gameinfo_section_key]
+
+        # Gets all lines from the gameinfo section that
+        # define mapcycles.
+        map_cycle_indices = []
+        for i, line in enumerate(gameinfo_section):
             if line.startswith('GameMapCycles'):
-                map_cycles.append((i, line))
+                map_cycle_indices.append(i)
 
-        return map_cycles
+        # Constructs the new map cycle using names of custom maps found
+        # within the registered directories.
+        new_mapcycle = (
+            'GameMapCycles=(Maps=('
+            + ','.join('"%s"' % x for x in cls.get_custom_map_names())
+            + '))'
+        )
 
+        # If a mapcycle already exists at the given index, it will be
+        # overwritten using the custom map cycle. Otherwise, regardless
+        # of the index given, a new map cycle will be created and
+        # inserted on the next line after the latest existing mapcycle.
+        if index > len(map_cycle_indices) - 1:
+            gameinfo_section.insert(map_cycle_indices[-1] + 1, new_mapcycle)
+        else:
+            gameinfo_section[map_cycle_indices[index]] = new_mapcycle
 
-if __name__ == '__main__':
-
-    KF2.INSTALL_DIR = r"D:\steamCMD\steamapps\common\kf2server"
-    KF2.CUSTOM_DIRS = r"KFGame\BrewedPC\Maps\Custom",
-
-    from pprint import pprint
-
-    pprint(KF2.rebuild_custom_mapcycle())
+        # Writes the modified table back to file.
+        cls.write_table_to_ini_file(cls.get_game_ini_path(), section_table)
