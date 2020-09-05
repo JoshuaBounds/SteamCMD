@@ -1,9 +1,9 @@
 """
+App class for controlling Killing Floor 2 dedicated server.
+
 TODO:
     Method for automatically setting up webadmin.
     Method for automatically setting up workshop.
-
-App class for controlling Killing Floor 2 dedicated server.
 """
 
 
@@ -42,6 +42,8 @@ class KF2(App):
     @classmethod
     def get_game_ini_path(cls) -> AnyStr:
         """
+        Gets the absolute path to the KFGame.ini file.
+
         :return:
             Absolute path to the KFGame.ini file.
         """
@@ -50,6 +52,8 @@ class KF2(App):
     @classmethod
     def get_engine_ini_path(cls) -> AnyStr:
         """
+        Gets the absolute path to the KFEngine.ini file.
+
         :return:
             Absolute path to the KFEngine.ini file.
         """
@@ -58,6 +62,8 @@ class KF2(App):
     @classmethod
     def get_cache_path(cls) -> AnyStr:
         """
+        Gets the absolute path to the workshop content cache.
+
         :return:
             Absolute path to the Cache directory for workshop content.
             This directory may not exist depending on whether workshop
@@ -68,6 +74,8 @@ class KF2(App):
     @classmethod
     def get_custom_dir_paths(cls) -> List[AnyStr]:
         """
+        Gets absolute paths to directories containing custom map data.
+
         :return:
             Absolute paths to directories containing custom map data.
             Directories will be tree'd for any KF-*.kfm files.
@@ -81,6 +89,7 @@ class KF2(App):
     def rebuild_map_summaries(cls) -> NoReturn:
         """
         Rebuilds all custom map summaries for the KFGame.ini file.
+
         The cache, and custom dirs are scanned for any KF-*.kfm files,
         at which point any valid file names are added to the .ini file
         as custom map summaries.
@@ -122,6 +131,7 @@ class KF2(App):
     ) -> NoReturn:
         """
         Sets the workshop content ID's for the server to subscribe to.
+
         :param items:
             List of workshop ID's, given as integers.
         :param append:
@@ -157,6 +167,7 @@ class KF2(App):
     def remove_workshop_items(cls, items: Iterable[int] = None) -> NoReturn:
         """
         Removes workshop content from the server subscription.
+
         :param items:
             List of workshop ID's, given as integers.
             If None, will clear all workshop items from subscription.
@@ -190,7 +201,12 @@ class KF2(App):
     @classmethod
     def get_custom_map_names(cls) -> List:
         """
-        Gets the names of all custom maps in the registered directories.
+        Gets names of valid custom maps in the registered directories.
+
+        For a map to be considered valid it must:
+            Be prefixed with "kf-"
+            Have the extension ".kfm"
+        (name requirements are not case sensitive).
         :return:
             List of custom maps names.
         """
@@ -217,19 +233,20 @@ class KF2(App):
         return names
 
     @classmethod
-    def read_ini_file_to_table(cls, path: AnyStr) -> Dict:
+    def read_ini_file_to_table(cls, file_path: AnyStr) -> Dict:
         """
-        Reads the given .ini file to a table of sections where each
-        section header acts as the key, and the section data is a list
-        of lines of text.
-        :param path:
+        Reads given .ini file to a table of header sections.
+
+        Each section header acts as the key, and the section data is a
+        list of file lines for that section.
+        :param file_path:
             Path to the .ini file to read.
         :return:
             Table of .ini file data.
         """
 
         # Reads the .ini file content.
-        with open(cls.get_game_ini_path()) as f:
+        with open(file_path) as f:
             content = f.read()
 
         # Created a table of .ini sections where the .ini headers act
@@ -242,9 +259,14 @@ class KF2(App):
         return section_table
 
     @classmethod
-    def write_table_to_ini_file(cls, file_path: AnyStr, table: Dict) -> NoReturn:
+    def write_table_to_ini_file(
+            cls,
+            file_path: AnyStr,
+            table: Dict
+    ) -> NoReturn:
         """
-        Writes a given .ini file table back to .ini file.
+        Writes a given .ini file table to the given .ini file path.
+
         :param file_path:
             Path to the .ini file to write data to.
         :param table:
@@ -262,11 +284,11 @@ class KF2(App):
         with open(file_path, 'w') as f:
             f.write(content)
 
-
     @classmethod
     def rebuild_custom_mapcycle(cls, index: int = 1) -> NoReturn:
         """
         Rebuilds custom mapcycle using custom maps from registered dirs.
+
         Mapcycle can eiter overwrite an existing mapcycle, or be
         appended as a new mapcycle based on the index given.
         :param index:
