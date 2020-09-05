@@ -22,7 +22,8 @@ class Steam(App):
     @classmethod
     def launch_game(cls, app: Type[App]) -> NoReturn:
         """
-        Launches the given app class along side steamcmd.
+        Launches the given app class along side an instance of steamcmd.
+
         steamcmd will be terminated when the app's process closes.
         :param app:
             App class that will be launched along side steamcmd.
@@ -40,6 +41,7 @@ class Steam(App):
     def update_game(cls, app: Union[Type[App], App]) -> NoReturn:
         """
         Updates the app at the given steam app ID.
+
         :param app:
             Steam app ID for the target application to update.
         """

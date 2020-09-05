@@ -25,6 +25,7 @@ class KF2(App):
         KF-*.kfm files.
     """
 
+    # Private constants.
     _engine_ini_subpath:   AnyStr = r"KFGame\Config\PCServer-KFEngine.ini"
     _game_ini_subpath:     AnyStr = r"KFGame\Config\PCServer-KFGame.ini"
     _cache_subpath:        AnyStr = r"KFGame\Cache"
@@ -33,11 +34,13 @@ class KF2(App):
         '[OnlineSubsystemSteamworks.KFWorkshopSteamworks]'
     )
 
+    # Redefined attributes.
     EXE_SUBPATH: AnyStr = r"Binaries\Win64\KFServer.exe"
-    ARGS:        Tuple  = 'kf-burningparis',
-    ID:          int    = 232130
+    ARGS:         Tuple = 'kf-burningparis',
+    ID:             int = 232130
 
-    CUSTOM_DIRS: Tuple  = NotImplemented
+    # User defined attributes.
+    CUSTOM_DIRS: Tuple = NotImplemented
 
     @classmethod
     def get_game_ini_path(cls) -> AnyStr:
@@ -99,7 +102,7 @@ class KF2(App):
         # Reads the .ini file content.
         section_table = cls.read_ini_file_to_table(cls.get_game_ini_path())
 
-        # Removes any custom map summaries
+        # Removes any custom map summaries from table.
         # Custom map summaries differ from vanilla ones where:
         #   Vanilla map summaries use 8 lines.
         #   Custom map summaries use 1.
@@ -116,9 +119,8 @@ class KF2(App):
         # Creates a map summaries for all custom maps found in
         # registered directories.
         for name in cls.get_custom_map_names():
-            header_line = '[%s KFMapSummary]'
-            line        = 'MapName=%s'
-            section_table[header_line % name] = [line % name]
+            summary_line, map_line = '[%s KFMapSummary]', 'MapName=%s'
+            section_table[summary_line % name] = [map_line % name]
 
         # Writes the modified table back to file.
         cls.write_table_to_ini_file(cls.get_game_ini_path(), section_table)

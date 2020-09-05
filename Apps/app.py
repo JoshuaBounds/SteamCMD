@@ -27,13 +27,14 @@ class App:
 
     INSTALL_DIR: AnyStr = NotImplemented
     EXE_SUBPATH: AnyStr = NotImplemented
-    ID:          int    = NotImplemented
-    ARGS:        Tuple  = NotImplemented
+    ID:             int = NotImplemented
+    ARGS:         Tuple = NotImplemented
 
     @classmethod
     def launch(cls) -> Popen:
         """
         Creates and returns a process for the app.
+
         :return:
             Apps Popen object.
         """
@@ -42,6 +43,8 @@ class App:
     @classmethod
     def get_exe_path(cls) -> AnyStr:
         """
+        Gets absolute path to the app's executable.
+
         :return:
             Absolute path to the app's executable.
         """
@@ -50,7 +53,10 @@ class App:
     @classmethod
     def get_launch_command(cls) -> Tuple:
         """
+        Gets shell command that will launch the app using current args.
+
         :return:
-            Shell command that will launch the app using current args.
+            String representing a shell command that will launch the
+            app using it's current args.
         """
         return (cls.get_exe_path(),) + cls.ARGS
