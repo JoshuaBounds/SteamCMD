@@ -128,7 +128,7 @@ class KF2(App):
     @classmethod
     def set_workshop_items(
             cls,
-            items: List[int],
+            items:  List[int],
             append: bool = False
     ) -> NoReturn:
         """
@@ -230,7 +230,7 @@ class KF2(App):
                     if extension.casefold() != '.kfm':
                         continue
 
-                    names.append(file_name)
+                    names.append(name)
 
         return names
 
@@ -264,7 +264,7 @@ class KF2(App):
     def write_table_to_ini_file(
             cls,
             file_path: AnyStr,
-            table: Dict
+            table:     Dict
     ) -> NoReturn:
         """
         Writes a given .ini file table to the given .ini file path.
