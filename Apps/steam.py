@@ -17,7 +17,7 @@ class Steam(App):
     """
 
     EXE_SUBPATH: AnyStr = r"steamcmd.exe"
-    ARGS:        Tuple  = '+login anonymous',
+    ARGS:         Tuple = '+login anonymous',
 
     @classmethod
     def launch_game(cls, app: Type[App]) -> NoReturn:
