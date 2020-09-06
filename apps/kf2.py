@@ -10,7 +10,7 @@ TODO:
 from typing import *
 import re
 import os
-from Apps.app import *
+from apps.app import *
 
 
 __all__ = 'KF2',

@@ -9,8 +9,8 @@ import time
 import re
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from Apps.steam import *
-from Apps.kf2 import *
+from apps.steam import *
+from apps.kf2 import *
 
 
 __all__ = 'start_kf2_server', 'start_kf2_server_loop'
@@ -33,7 +33,8 @@ def start_kf2_server(
         - Starts the server and waits 5 minutes to give the server time
             to download any new workshop maps before stopping again.
         - Rebuilds the servers custom map summaries and mapcycle.
-        - Launches the server and returns the steam, and kf2 process's
+        - Re-launches the server and returns the
+            steam, and kf2 process's
     :param steam_dir:
         Path to steamcmd's install directory.
     :param kf2_dir:
@@ -119,23 +120,44 @@ def start_kf2_server_loop(
         Given to `start_kf2_server()`.
     """
 
-    # Main loop that restarts the server at 00:00 local time each day.
+    # Main loop that restarts the server once a day at the given hour.
     while True:
 
         # Starts the server and returns the steam and kf2 process.
         steam, kf2 = start_kf2_server(*args, **kwargs)
 
-        # Loops until a full day has passed.
+        # Loop tests for two things:
+        #   - Whether the steam or kf2 process has terminated. If true,
+        #       closes the remaining process and exits function.
+        #   - Whether time time has CHANGED to restart hour. If true,
+        #       breaks loop and allows the main loop to restart the
+        #       server for updates.
         is_restart_hour = False
         while True:
+
+            # If either the steam or kf2 process is terminated, the
+            # other process will be terminated as well before
+            # exiting function.
+            if kf2.poll() is not None:
+                steam.terminate()
+                steam.wait()
+                return
+            if steam.poll() is not None:
+                kf2.terminate()
+                kf2.wait()
+                return
+
+            # Tests to see if current time has CHANGED to restart hour.
             hour = time.localtime().tm_hour
             if hour == restart_hour and is_restart_hour:
                 break
             if hour != restart_hour:
                 is_restart_hour = True
-            time.sleep(60)
 
-        # Terminates the server processes.
+            # Sleeps for a moment to reduce process load.
+            time.sleep(1)
+
+        # Terminates the server processes before the loop restarts.
         steam.terminate()
         kf2.terminate()
         steam.wait()

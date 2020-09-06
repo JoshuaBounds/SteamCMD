@@ -1,5 +1,5 @@
 """
-Apps class for all apps.
+apps class for all apps.
 """
 
 
@@ -13,7 +13,7 @@ __all__ = 'App',
 
 class App:
     """
-    Apps class for all apps.
+    apps class for all apps.
 
     :attr INSTALL_DIR:
         Applications install directory.
@@ -33,12 +33,12 @@ class App:
     @classmethod
     def launch(cls) -> Popen:
         """
-        Creates and returns a process for the app.
+        Creates and returns a Popen process for the app.
 
         :return:
-            Apps Popen object.
+            apps Popen object.
         """
-        return Popen(cls.get_launch_command())
+        return Popen(cls.get_launch_args())
 
     @classmethod
     def get_exe_path(cls) -> AnyStr:
@@ -51,12 +51,12 @@ class App:
         return os.path.join(cls.INSTALL_DIR, cls.EXE_SUBPATH)
 
     @classmethod
-    def get_launch_command(cls) -> Tuple:
+    def get_launch_args(cls) -> Tuple:
         """
         Gets shell command that will launch the app using current args.
 
         :return:
-            String representing a shell command that will launch the
-            app using it's current args.
+            Tuple of args representing a shell command that will launch
+            the app using the class's current arg settings.
         """
         return (cls.get_exe_path(),) + cls.ARGS
