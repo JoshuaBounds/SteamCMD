@@ -10,6 +10,7 @@ TODO:
 from typing import *
 import re
 import os
+import shutil
 from apps.app import *
 
 
@@ -63,7 +64,7 @@ class KF2(App):
         return os.path.join(cls.INSTALL_DIR, cls._engine_ini_subpath)
 
     @classmethod
-    def get_cache_path(cls) -> AnyStr:
+    def get_cache_dir(cls) -> AnyStr:
         """
         Gets the absolute path to the workshop content cache.
 
@@ -216,7 +217,7 @@ class KF2(App):
         # Walks the cache dir, and all custom dirs for KF-*.kfm files.
         # All valid files found are appended to names.
         names = []
-        for path in [cls.get_cache_path()] + cls.get_custom_dir_paths():
+        for path in [cls.get_cache_dir()] + cls.get_custom_dir_paths():
             for dir_path, _, file_names in os.walk(path):
                 for file_name in file_names:
 
@@ -331,3 +332,39 @@ class KF2(App):
 
         # Writes the modified table back to file.
         cls.write_table_to_ini_file(cls.get_game_ini_path(), section_table)
+
+    @classmethod
+    def clear_unregistered_workshop_maps(cls) -> NoReturn:
+        """
+        Clears all unsubscribed workshop maps from the cache directory.
+
+        Uses the current workshop subscription list within KFEngine.ini.
+        """
+
+        # Reads the engine.ini file to a section table.
+        section_table = cls.read_ini_file_to_table(cls.get_engine_ini_path())
+
+        # Gets the IDs for all subscribed workshop maps as strings.
+        re_number = re.compile(r"\d+")
+        matches = (
+            re_number.search(line)
+            for line in section_table[cls._workshop_section_key]
+        )
+        map_ids = {
+            match.group(0)
+            for match in matches
+            if match
+        }
+
+        # Deletes any existing map caches that don't exist in the list
+        # of subscribed workshop maps.
+        for cache_dir in os.listdir(cls.get_cache_dir()):
+            if cache_dir in map_ids:
+                continue
+            shutil.rmtree(os.path.join(cls.get_cache_dir(), cache_dir))
+
+
+if __name__ == '__main__':
+
+    KF2.INSTALL_DIR = r"D:\steamCMD\steamapps\common\kf2server"
+    KF2.clear_unregistered_workshop_maps()

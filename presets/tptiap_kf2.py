@@ -87,6 +87,10 @@ def start_kf2_server(
         if re_number.match(cell)
     ])
 
+    # Removes any cached maps that the server is not longer
+    # subscribed to.
+    KF2.clear_unregistered_workshop_maps()
+
     # Launches Steam and KF2 then waits 5 minutes to give the server
     # time to download any new workshop content; then terminates
     # the process's.
