@@ -1,8 +1,4 @@
 """
-TODO:
-    KF2 cache directory need to be culled of unwanted workshop maps
-    before rebuilding map summaries.
-
 Alias functions for launching TPTIAP community servers.
 """
 
