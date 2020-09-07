@@ -362,9 +362,3 @@ class KF2(App):
             if cache_dir in map_ids:
                 continue
             shutil.rmtree(os.path.join(cls.get_cache_dir(), cache_dir))
-
-
-if __name__ == '__main__':
-
-    KF2.INSTALL_DIR = r"D:\steamCMD\steamapps\common\kf2server"
-    KF2.clear_unregistered_workshop_maps()
