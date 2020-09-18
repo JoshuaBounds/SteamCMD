@@ -317,7 +317,7 @@ class KF2(App):
         # within the registered directories.
         new_mapcycle = (
             'GameMapCycles=(Maps=('
-            + ','.join('"%s"' % x for x in cls.get_custom_map_names())
+            + ','.join('"%s"' % x for x in sorted(cls.get_custom_map_names()))
             + '))'
         )
 
